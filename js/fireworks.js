@@ -2,11 +2,12 @@ const canvas = document.getElementById('canvasNode');
 const ctx = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
-const canvasWidth = canvas.width;
-const canvasHeight = canvas.height;
-const gravitational = 3; // 重力系数
-const airResistance = 1; // 空气阻力
-const everyFireworkTime = 3; // 每个烟花的持续时间，单位：秒
+const CANVAS_WIDTH = canvas.width;
+const CANVAS_HEIGHT = canvas.height;
+const GRAVITATIONAL = 2.5; // 重力系数
+const AIR_RESISTANCE = 1; // 空气阻力
+const EVERY_FIREWORK_TIME = 3; // 每个烟花的持续时间，单位：秒
+const FRAME = 60;
 
 class FlyingMonkey{ // 窜天猴，发射升空的，目前只能垂直发射
     constructor(x,y,speedX,speedY){
@@ -32,8 +33,6 @@ class FlyingMonkey{ // 窜天猴，发射升空的，目前只能垂直发射
         ctx.closePath();
     }
 }
-let arrFirework = [];
-let arrFlyingMonkey = [];
 
 class Firework { // 烟花，爆炸的
     constructor(x,y,speedX,speedY){
@@ -42,8 +41,13 @@ class Firework { // 烟花，爆炸的
         this.speedX = speedX;
         this.speedY = speedY;
         this.opacity = 1;
-        this.count = 200;
+        this.count = 500;
         this.AllFireworks = [];
+
+        this.createAllFirework();
+        Launch.arrFirework.push(this);
+    }
+    createAllFirework(){
         let r = Math.floor(Math.random()*256), g = Math.floor(Math.random()*256) , b =Math.floor(Math.random()*256);
         for(let i=0;i<this.count;i++){
             this.AllFireworks.push({
@@ -55,18 +59,20 @@ class Firework { // 烟花，爆炸的
                 speedY:this.speedY * i/this.count*10 *(Math.random()-0.5)
             });
         }
-        this.createAllFirework();
-        arrFirework.push(this);
+        this.updateAllFirework();
     }
-    createAllFirework(){
+    updateAllFirework(){
         for(let i=0;i<this.AllFireworks.length;i++){
             let {r,g,b,x,y,speedX,speedY,opacity} = this.AllFireworks[i];
-            this.AllFireworks[i].y = y - speedY/60; // 60是帧数
-            this.AllFireworks[i].x = x - speedX/60;
-            this.AllFireworks[i].opacity = opacity - 1/60/everyFireworkTime;// 3秒后透明度为0
-            this.AllFireworks[i].speedY = speedY - gravitational;
-            if(Math.abs(speedX)>3/60) {this.AllFireworks[i].speedX = speedX - (speedX>0?airResistance:(airResistance*(-1)));}
-            else {this.AllFireworks[i].speedX = 0;}
+            this.AllFireworks[i].y = y - speedY/FRAME;
+            this.AllFireworks[i].x = x - speedX/FRAME;
+            this.AllFireworks[i].opacity = opacity - 1/ FRAME / EVERY_FIREWORK_TIME;
+            this.AllFireworks[i].speedY = speedY - GRAVITATIONAL;
+            if(Math.abs(speedX)>3/FRAME) { // 速度<= 3/FRAME 认为停止了
+                this.AllFireworks[i].speedX = speedX - (speedX>0?AIR_RESISTANCE:(AIR_RESISTANCE*(-1)));
+            } else {
+                this.AllFireworks[i].speedX = 0;
+            }
             ctx.beginPath();
             ctx.save();
             ctx.globalCompositeOperation = 'lighter';
@@ -81,7 +87,7 @@ class Firework { // 烟花，爆炸的
 
 class Start{
     constructor(x,y,speedX,speedY){
-        arrFlyingMonkey.push(this);
+        Launch.arrFlyingMonkey.push(this);
         this.x = x;
         this.y = y;
         this.speedX = speedX;
@@ -89,47 +95,50 @@ class Start{
         this.begin();
     }
     begin(){
-        this.y = this.y - this.speedY/60; // 60是帧数
-        this.x = this.x - this.speedX/60;
-        this.speedY = this.speedY - gravitational;
+        this.y = this.y - this.speedY/FRAME;
+        this.x = this.x - this.speedX/FRAME;
+        this.speedY = this.speedY - GRAVITATIONAL;
         new FlyingMonkey(this.x, this.y, this.speedX, this.speedY);
     }
 }
 
-class AllStart{
+class Launch{ // 发射
+    static arrFlyingMonkey = [];
+    static arrFirework = [];
+    static timer;
     constructor(){
         this.draw = this.draw.bind(this);
         this.draw();
     }
     draw(){
-        ctx.clearRect(0,0,canvasWidth,canvasHeight);
-        arrFlyingMonkey.forEach((item,i)=>{
+        ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        Launch.arrFlyingMonkey.forEach((item,i)=>{
             item.begin();
             if(item.speedY < 0){
-                arrFlyingMonkey.splice(i,1);
-                new Firework(item.x,item.y,7*6,5*6); // 宽高比：7:5
+                Launch.arrFlyingMonkey.splice(i,1);
+                new Firework(item.x,item.y,7*7,5*7); // 烟花宽高比：7:5
             }
         });
-        arrFirework.forEach((item,i)=>{
-            item.createAllFirework();
+        Launch.arrFirework.forEach((item,i)=>{
+            item.updateAllFirework();
         });
-        if(arrFirework.length>10){ // 清理arrFirework，避免占用过多内存，其实还可以通过everyFireworkTime更及时清理
-            arrFirework.shift();
+        if(Launch.arrFirework.length>5){ // 清理arrFirework，避免占用过多内存，其实还可以通过EVERY_FIREWORK_TIME更及时清理
+            Launch.arrFirework.shift();
         }
         requestAnimationFrame(this.draw);
     }
 }
-new AllStart();
+new Launch();
 
-let timer;
-timer = setInterval(()=>{
-        new Start(canvasWidth * (Math.random() * 0.8 + 0.1),canvasHeight-100,0,300 *(Math.random()*0.5 + 1));
+Launch.timer = setInterval(()=>{
+        new Start(CANVAS_WIDTH * (Math.random() * 0.8 + 0.1),CANVAS_HEIGHT * 0.9,0,300 *(Math.random()*0.5 + 1));
     },1500);
 window.onfocus = function() {
-    timer = setInterval(()=>{
-        new Start(canvasWidth * (Math.random() * 0.8 + 0.1),canvasHeight-100,0,300*(Math.random()*0.5 + 1));
+    clearInterval(Launch.timer);
+    Launch.timer = setInterval(()=>{
+        new Start(CANVAS_WIDTH * (Math.random() * 0.8 + 0.1),CANVAS_HEIGHT * 0.9,0,300 *(Math.random()*0.5 + 1));
     },1500);
 };
 window.onblur = function() {
-    clearInterval(timer);
+    clearInterval(Launch.timer);
 };
