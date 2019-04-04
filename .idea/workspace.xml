@@ -2,11 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="507f4d3c-c1ac-4675-82c0-db46303153fd" name="Default" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/fireworks.iml" afterPath="$PROJECT_DIR$/.idea/fireworks.iml" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="$PROJECT_DIR$/.idea/modules.xml" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change beforePath="$PROJECT_DIR$/js/fireworks.js" afterPath="$PROJECT_DIR$/js/fireworks.js" />
     </list>
     <ignored path="$PROJECT_DIR$/.tmp/" />
     <ignored path="$PROJECT_DIR$/temp/" />
@@ -156,12 +153,12 @@
       <updated>1554190654744</updated>
       <workItem from="1554190655925" duration="8704000" />
       <workItem from="1554253917944" duration="14622000" />
-      <workItem from="1554348636469" duration="679000" />
+      <workItem from="1554348636469" duration="1015000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="24005000" />
+    <option name="totallyTimeSpent" value="24341000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1936" height="1056" extended-state="6" />
