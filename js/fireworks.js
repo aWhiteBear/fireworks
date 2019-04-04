@@ -105,13 +105,19 @@ class Start{
 class Launch{ // 发射
     static arrFlyingMonkey = [];
     static arrFirework = [];
-    static timer;
+    static timer = setInterval(()=>{
+        new Start(CANVAS_WIDTH * (Math.random() * 0.8 + 0.1),CANVAS_HEIGHT * 0.9,0,300 *(Math.random()*0.5 + 1));
+    },1500);
+    static lastTime = new Date().getTime();
+    fps=0;
+    sum=0;// 帧数计数器 60帧一循环
     constructor(){
         this.draw = this.draw.bind(this);
         this.draw();
     }
     draw(){
         ctx.clearRect(0,0,CANVAS_WIDTH,CANVAS_HEIGHT);
+        this.updateFps();
         Launch.arrFlyingMonkey.forEach((item,i)=>{
             item.begin();
             if(item.speedY < 0){
@@ -122,17 +128,28 @@ class Launch{ // 发射
         Launch.arrFirework.forEach((item,i)=>{
             item.updateAllFirework();
         });
-        if(Launch.arrFirework.length>5){ // 清理arrFirework，避免占用过多内存，其实还可以通过EVERY_FIREWORK_TIME更及时清理
+        if(Launch.arrFirework.length>5){ // 清理arrFirework，避免占用过多内存，其实还可以通过 EVERY_FIREWORK_TIME 和 Launch.timer 更及时清理。length > EVERY_FIREWORK_TIME/Launch.timer
             Launch.arrFirework.shift();
         }
         requestAnimationFrame(this.draw);
     }
+    updateFps(){
+        if(this.sum++>=60){
+            this.sum = 0;
+            let nowTime = new Date().getTime();
+            this.fps = 60/(nowTime - Launch.lastTime) *1000;
+            Launch.lastTime = nowTime;
+        }
+        ctx.save();
+        ctx.fillStyle = 'red';
+        ctx.font="20px Arial";
+        ctx.fillText(`FPS: ${~~this.fps}`,CANVAS_WIDTH - 100,50);
+        ctx.restore();
+    }
 }
 new Launch();
 
-Launch.timer = setInterval(()=>{
-        new Start(CANVAS_WIDTH * (Math.random() * 0.8 + 0.1),CANVAS_HEIGHT * 0.9,0,300 *(Math.random()*0.5 + 1));
-    },1500);
+
 window.onfocus = function() {
     clearInterval(Launch.timer);
     Launch.timer = setInterval(()=>{
