@@ -103,15 +103,9 @@ class Start{
 }
 
 class Launch{ // 发射
-    static arrFlyingMonkey = [];
-    static arrFirework = [];
-    static timer = setInterval(()=>{
-        new Start(CANVAS_WIDTH * (Math.random() * 0.8 + 0.1),CANVAS_HEIGHT * 0.9,0,300 *(Math.random()*0.5 + 1));
-    },1500);
-    static lastTime = new Date().getTime();
-    fps=0;
-    sum=0;// 帧数计数器 60帧一循环
     constructor(){
+        this.fps=0;
+        this.sum=0;// 帧数计数器 60帧一循环
         this.draw = this.draw.bind(this);
         this.draw();
     }
@@ -147,6 +141,14 @@ class Launch{ // 发射
         ctx.restore();
     }
 }
+/** 添加Launch静态属性*/
+Launch.arrFlyingMonkey = [];
+Launch.arrFirework = [];
+Launch.timer = setInterval(()=>{
+    new Start(CANVAS_WIDTH * (Math.random() * 0.8 + 0.1),CANVAS_HEIGHT * 0.9,0,300 *(Math.random()*0.5 + 1));
+},1500);
+Launch.lastTime = new Date().getTime();
+
 new Launch();
 
 
